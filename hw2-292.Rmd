@@ -1,0 +1,185 @@
+---
+title: "STAT 292 - Homework 2"
+author: "Pınar Çetin - 2010064"
+date: "2023-06-16"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1
+**a.** 
+We read our data from heart_data.csv file. We display the association between fast_food_spend (x) and heart_disease (y) using ggplot. 
+
+```{r}
+library(ggplot2)
+heart_data <- read.csv("/Users/pinarcetin/Desktop/Pinarto ödev/heart_data.csv",header=TRUE)
+ggplot( heart_data, aes(x=fast_food_spend, y=heart_disease)) +
+  geom_point() +
+  geom_smooth(method = "glm", 
+    method.args = list(family = "binomial"), 
+    se = FALSE)+ggtitle("Logistic Regression Model") +
+  xlab("Fast Food Spend") + ylab("Heart Disease Status")
+```
+
+As you can see in the graph, the fast food expenditure of those without heart disease varies between 0-5000. However, the expenditure of those with heart disease starts from 2000 levels and goes up to over 6000.
+
+
+<br />
+
+**b.** 
+
+```{r}
+mylogit <- glm(
+  formula = factor(heart_disease) ~  fast_food_spend ,
+  data = heart_data,
+  family = binomial(link = 'logit')
+)
+summary(mylogit)
+```
+According to the p-value of the coefficient of fast_food_spend, we can conclude
+that there is a significant and positive association between fastfood spend and the probability of having heart disease.
+
+
+<br />
+
+**c.**
+
+```{r}
+
+
+test_obs <- data.frame(
+  fast_food_spend = 3000.652910,
+  heart_disease=1
+)
+
+predict(mylogit, type = "response", test_obs)
+```
+A person who spends 3000.652910  on fast food has a 0.01710395 chance of developing heart disease.
+
+
+<br />
+
+**d.**
+
+```{r}
+mylogit <- glm(
+  formula = factor(heart_disease) ~  factor(coffee_drinker) ,
+  data = heart_data,
+  family = binomial(link = 'logit')
+)
+summary(mylogit)
+```
+
+Being coffee_drinker variable is taken as a reference level. So, we construct the logistic regression model.
+As the p-value of the coefficient of factor(coffee_drinker)1 variable is lower than the significance level of 0.05, we can conclude that there is a significant difference in the probability of having heart disease among people who consume coffee regularly and non-consumers” (p-value=0.000431).
+
+
+<br />
+
+**e.**
+
+```{r}
+high.coffee.pred <- data.frame(coffee_drinker="1")
+predict(mylogit,high.coffee.pred,type="response")
+
+
+low.coffee.pred <- data.frame(coffee_drinker="0")
+predict(mylogit,low.coffee.pred,type="response")
+```
+
+As the model shows, regular coffee drinkers (with probability 0.04313859) are nearly twice as likely to develop heart disease as non-coffee drinkers (with probability 0.02919501).
+
+## Question 2
+
+**a.**
+First of all, we load the sqldf library and readxl, then read our data from 1952.xlsx file.
+
+```{r}
+library(sqldf)
+library("readxl")
+my_data <- read_excel("/Users/pinarcetin/Desktop/Pinarto ödev/1952.xlsx")
+```
+ 
+
+<br />
+
+**b.**
+We print different levels of continent.
+
+```{r} 
+
+sqldf("select continent from my_data group by continent")
+```
+
+The data consists of 5 different continents.
+
+<br />
+
+**c.**
+We select lifeExp, pop and gdpPercap variables, and print first 7 rows.
+
+```{r} 
+
+sqldf("select lifeExp, pop, gdpPercap from my_data limit 7")
+```
+
+
+<br />
+
+**d.**
+We get the number of distinct continents.
+
+```{r} 
+
+sqldf("select count(distinct continent) as count from my_data ")
+```
+
+
+<br />
+
+**e.** 
+We sort the dataset according to lifeExp in descending order. After this, we print first 5 rows of country, lifeExp and pop variables.
+
+```{r} 
+
+sqldf("select country,lifeExp,pop from my_data order by lifeExp desc limit 5")
+```
+
+According to this ordering, Norway has the highest life expectancy, whereas Denmark has the lowest life expectancy among first 5 countries.
+
+## Question 3
+
+**a.**
+```{r}
+X.prob <- dbinom(x=0:1,size=10,prob=1/10)
+sum(X.prob)
+W.prob<- pbinom(1,size=10,prob=1/10)
+W.prob
+
+```
+
+We can use either dbinom or pbinom function here and their probabilities must be equal to each other.
+
+<br />
+
+**b.**
+
+```{r}
+dbinom(x=2,size=10,prob=1/10)
+```
+
+
+<br />
+
+**c.**
+
+```{r}
+Z.prob <- dbinom(x=0:3,size=10,prob=9/10)
+sum(Z.prob)
+U.prob <- pbinom(3,size=10,prob=9/10)
+U.prob
+```
+
